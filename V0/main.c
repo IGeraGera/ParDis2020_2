@@ -3,6 +3,7 @@
 #include<errno.h>
 #include<string.h>
 #include<math.h>
+#include<float.h>
 #include<cblas.h>
 
 // Definition of the kNN result struct
@@ -87,7 +88,7 @@ main(int argc, char *argv[]){
 	puts("");
 	*/	
 
-	struct knnresult res=kNN(X,Y,n,m,d,k);
+	knnresult res=kNN(X,Y,n,m,d,k);
 
 	for (int i = 0 ; i<m*k;i++)
 		printf("dist: %lf \t index: %d  \n",res.ndist[i],res.nidx[i]);
@@ -103,13 +104,13 @@ main(int argc, char *argv[]){
 
 knnresult
 kNN(double * X, double * Y, int n, int m, int d, int k){
-	# define numOfBlocks 8
+	# define numOfBlocks 1
 	/* knnresult struct variables */
 	int    *idx     = (int *)   malloc(m*k*sizeof(int));
 	double *dist    = (double *)malloc(m*k*sizeof(double));
 	/* Initialize dist and idx */
 	for (int i=0;i<m*k;i++){
-		dist[i]=0;
+		dist[i]=DBL_MAX;
 		idx[i]=-1;
 	}
 	/* Variables that only allocate once */
@@ -162,16 +163,16 @@ kNN(double * X, double * Y, int n, int m, int d, int k){
 		for (int j=0;j<n;j++){
 			for (int i=0;i<mBlock;i++){
 				/* Check if D is greater than dist for every k  */
-				for (int knn=0;knn<k;knn++){
-					if (D[j*mBlock+i] >= dist[(i+mIndex)*k+knn]){
+				for (int knn=k-1;knn>=0;knn--){
+					if (D[j*mBlock+i] <= dist[(i+mIndex)*k+knn]){
 						double tmpdist = dist[(i+mIndex)*k+knn];
 						int tmpidx = idx[(i+mIndex)*k+knn];
 						dist[(i+mIndex)*k+knn] = D[j*mBlock+i] ;
-						idx[(i+mIndex)*k+knn] = (j*m+(i+mIndex));
+						idx[(i+mIndex)*k+knn] = j ;
 						/* If k index (knn) is 0 there is no place to put the tmp so break  */
-						if (knn!=0){
-							dist[(i+mIndex)*k+knn-1] = tmpdist;
-							idx[(i+mIndex)*k+knn-1] = tmpidx;
+						if (knn!=k-1){
+							dist[(i+mIndex)*k+knn+1] = tmpdist;
+							idx[(i+mIndex)*k+knn+1] = tmpidx;
 						}
 					}
 				}
@@ -193,7 +194,7 @@ kNN(double * X, double * Y, int n, int m, int d, int k){
 		printf("dist: %lf \t index: %d  \n",dist[i],idx[i]);
 	*/
 	/* Set up knnresult  */
-	struct knnresult result;
+	knnresult result;
 	result.m = m;
 	result.k = k;
 	result.ndist = dist;
