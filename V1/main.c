@@ -103,7 +103,6 @@ main(int argc, char *argv[]){
 	//
 	/*Ending Proccess Memory Dealloc*/
 	free(X);
-	free(data);
 	fclose(fp);
 	exit(EXIT_SUCCESS);
 
@@ -287,7 +286,7 @@ distrAllkNN(double * X, int n, int d, int k){
 
 knnresult
 kNN(double * X, double * Y, int n, int m, int d, int k, int nIndex){
-	# define numOfBlocks 12
+	# define numOfBlocks 120
 	/* knnresult struct variables */
 	static int    *idx     = NULL;
 	static double *dist    = NULL;
