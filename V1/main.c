@@ -1,10 +1,12 @@
 #include<stdio.h>
+#include<unistd.h>
 #include<stdlib.h>
 #include<errno.h>
 #include<string.h>
 #include<math.h>
 #include<float.h>
 #include<cblas.h>
+#include<sys/time.h>
 #include "mpi.h"
 
 // Definition of the kNN result struct
@@ -83,13 +85,23 @@ main(int argc, char *argv[]){
 	}
 	puts("");
 	*/
-
+	/* Free  data memory*/
+	while(dataRows) free(data[--dataRows]);
+	free(data);
+	/* Variables for time measurment  */
+	struct timeval timeStart,timeEnd;
+	double totaltime;
+	/* kNN Calculation */
+	gettimeofday(&timeStart,NULL);
 	knnresult res=distrAllkNN(X,n,d,k);
-
+	gettimeofday(&timeEnd,NULL);
+	totaltime = (timeEnd.tv_sec*1000 + timeEnd.tv_usec/1000) - (timeStart.tv_sec*1000 + timeStart.tv_usec/1000) ;
+	printf("Total time : %.4f \n",totaltime);
 
 	//for (int i = 0 ; i<m*k;i++)
 	//	printf("dist: %lf \t index: %d  \n",res.ndist[i],res.nidx[i]);
-	/*Ending Proccess  */
+	//
+	/*Ending Proccess Memory Dealloc*/
 	free(X);
 	free(data);
 	fclose(fp);
@@ -275,7 +287,7 @@ distrAllkNN(double * X, int n, int d, int k){
 
 knnresult
 kNN(double * X, double * Y, int n, int m, int d, int k, int nIndex){
-	# define numOfBlocks 1
+	# define numOfBlocks 12
 	/* knnresult struct variables */
 	static int    *idx     = NULL;
 	static double *dist    = NULL;
@@ -390,7 +402,6 @@ kNN(double * X, double * Y, int n, int m, int d, int k, int nIndex){
 		free(Y_HAD);	
 		free(D);
 
-		//current_block++;
 	}
 	/* Prinf dist and idx  */
 	/*

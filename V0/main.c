@@ -4,6 +4,7 @@
 #include<string.h>
 #include<math.h>
 #include<float.h>
+#include<sys/time.h>
 #include<cblas.h>
 
 // Definition of the kNN result struct
@@ -63,7 +64,8 @@ main(int argc, char *argv[]){
 	int n = dataRows*splitcoeff;
 	int m = dataRows - n;
 	int d = attributes;
-	int k = 3;
+	int k = 10;
+	printf("%d\n",d);
 	double *X = (double *)malloc(n*d*sizeof(double));
 	double *Y = (double *)malloc(m*d*sizeof(double));
 	/* Init X and Y */
@@ -87,16 +89,24 @@ main(int argc, char *argv[]){
 	}
 	puts("");
 	*/	
-
+	/* Free  data memory*/
+	while(dataRows) free(data[--dataRows]);
+	free(data);
+	/* Find kNN */
+	struct timeval timeStart,timeEnd;
+	double totaltime;
+	gettimeofday(&timeStart,NULL);
 	knnresult res=kNN(X,Y,n,m,d,k);
+	gettimeofday(&timeEnd,NULL);
+	totaltime = (timeEnd.tv_sec*1000 + timeEnd.tv_usec/1000) - (timeStart.tv_sec*1000 + timeStart.tv_usec/1000) ;
+	/* Print output */
+	//for (int i = 0 ; i<m*k;i++)
+	//	printf("dist: %lf \t index: %d  \n",res.ndist[i],res.nidx[i]);
 
-	for (int i = 0 ; i<m*k;i++)
-		printf("dist: %lf \t index: %d  \n",res.ndist[i],res.nidx[i]);
-
-	/*Ending Proccess  */
+	printf("Total time : %.4f ms\n",totaltime);
+	/*Ending Proccess deallocate memory  */
 	free(X);
 	free(Y);
-	free(data);
 	fclose(fp);
 	exit(EXIT_SUCCESS);
 
@@ -104,7 +114,7 @@ main(int argc, char *argv[]){
 
 knnresult
 kNN(double * X, double * Y, int n, int m, int d, int k){
-	# define numOfBlocks 1
+	# define numOfBlocks 150
 	/* knnresult struct variables */
 	int    *idx     = (int *)   malloc(m*k*sizeof(int));
 	double *dist    = (double *)malloc(m*k*sizeof(double));
@@ -123,6 +133,7 @@ kNN(double * X, double * Y, int n, int m, int d, int k){
 	}
 	/* Block the Y */
 	for (int current_block=1; current_block <= numOfBlocks; current_block++){
+		printf("Block %d/%d\n",current_block,numOfBlocks);
 		/* Block variables */
 		int mBlock = m / numOfBlocks;
 		int mIndex = mBlock * (current_block-1);

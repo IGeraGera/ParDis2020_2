@@ -5,14 +5,15 @@ import os
 import numpy
 
 
-dataset_name='dataR2.csv'
+dataset_name='MiniBooNE_PID.txt'
 
 # Get home path
 HOME=os.environ['HOME']
 # Join paths to final
 DATA_PATH=os.path.join(HOME,'Downloads',dataset_name)
-data =  pd.read_csv(DATA_PATH,sep=',',decimal='.')
+data =  pd.read_csv(DATA_PATH)
+#data =  pd.read_csv(DATA_PATH,sep=' ',decimal='.')
 data = data.values
 #numpy.savetxt(dataset_name,data[:,:-1],delimiter=",")
 #data.to_csv(dataset_name,index=False,header=False)
-pd.DataFrame(data[:,:-1]).to_csv(dataset_name,index=False,header=False)
+pd.DataFrame(data[:,:]).to_csv(dataset_name,index=False,header=False)
