@@ -6,7 +6,6 @@
 #include<float.h>
 #include<time.h>
 #include<limits.h>
-#include<cblas.h>
 
 // Definition of the kNN result struct
 typedef struct knnresult{

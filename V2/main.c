@@ -5,7 +5,6 @@
 #include<string.h>
 #include<math.h>
 #include<float.h>
-#include<cblas.h>
 #include<limits.h>
 #include<time.h>
 #include<sys/time.h>

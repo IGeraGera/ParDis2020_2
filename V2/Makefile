@@ -7,10 +7,10 @@ default: all
 all: mainSerial main
 
 main:
-	$(MPICC) $(CFLAGS) -o main main.c -lopenblas -lm 
+	$(MPICC) $(CFLAGS) -o main main.c -lm 
 
 mainSerial:
-	$(CC) $(CFLAGS) -o mainSerial mainSerial.c -lopenblas -lm 
+	$(CC) $(CFLAGS) -o mainSerial mainSerial.c -lm 
 
 testSerial:
 	./mainSerial ../Datasets/Container_Crane_Controller_Data_Set.csv 
