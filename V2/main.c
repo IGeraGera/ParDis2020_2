@@ -1,3 +1,11 @@
+/*
+ * In this version kNN calculation, we assume that X cannot be read from all proccesess for learning purposes.
+ * All the processes are connected in a ring topology.
+ * The X set is split and distributed by the root process to the others, then a Vantage Point tree is formed from
+ * the received local corpus set and the kNNs of the local set are calculated with the help of the tree.
+ * Afterwards the tree is passed to the next processess until knns are calculated from all tree for a certain local set.
+ *
+ */
 #include<stdio.h>
 #include<unistd.h>
 #include<stdlib.h>
@@ -344,10 +352,6 @@ distrAllkNN(double * X, int n, int d, int k){
 	finalres.m=n;
 	finalres.nidx=finalIdx;
 	finalres.ndist=finalDist;
-	//if(rank==0){
-	//for (int i = 0 ; i<m*k;i++)
-	//	printf("dist: %lf \t index: %d  \n",finalres.ndist[i],finalres.nidx[i]);
-	//}
 	return finalres;
 
 }

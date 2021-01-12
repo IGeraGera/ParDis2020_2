@@ -1,3 +1,7 @@
+/*
+ * This is the serial development program for the vantage tree.
+ * See V2/main.c
+ */
 #include<stdio.h>
 #include<stdlib.h>
 #include<errno.h>
