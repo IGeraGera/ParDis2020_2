@@ -9,7 +9,7 @@ main:
 	$(CC) $(CFLAGS) -o main main.c -lopenblas -lm 
 
 test:
-	./main ../Datasets/Container_Crane_Controller_Data_Set.csv 
+	./main ../Datasets/BreastCancerCoimbra.csv 
 
 .PHONY: clean
 

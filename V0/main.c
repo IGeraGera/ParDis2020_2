@@ -1,3 +1,9 @@
+/*
+ * This program takes a csv dataset as input, splits it according to a split coeffincient
+ * to set X and Y and finaly calculates the kNN of all the Y points from the X set.
+ *
+ * OUTPUT: knnresult structure
+ */   
 #include<stdio.h>
 #include<stdlib.h>
 #include<errno.h>
@@ -50,15 +56,6 @@ main(int argc, char *argv[]){
 	int dataRows;
 	data=readCSV(fp,data,&dataRows);
 	int attributes = getAttributes(fp);
-	/* Print data */
-	/*
-	for(int i=0; i<dataRows;i++){
-		for(int j = 0 ; j<attributes ;j++){
-			printf("%lf ",data[i][j]);
-		}
-		printf("\n");
-	}
-	*/
 	/* kNN variables*/
 	# define splitcoeff 0.5
 	int n = dataRows*splitcoeff;
@@ -79,16 +76,6 @@ main(int argc, char *argv[]){
 			Y[d*i+j]=data[i+n][j];
 		}
 	}
-	/* Prints D  */
-	/*
-	for (int i= 0 ; i<n; i++){
-		for (int j=0; j<m ; j++){
-			printf("%lf ",D[m*i+j]);
-		}
-		puts("");
-	}
-	puts("");
-	*/	
 	/* Free  data memory*/
 	while(dataRows) free(data[--dataRows]);
 	free(data);
@@ -100,13 +87,15 @@ main(int argc, char *argv[]){
 	gettimeofday(&timeEnd,NULL);
 	totaltime = (timeEnd.tv_sec*1000 + timeEnd.tv_usec/1000) - (timeStart.tv_sec*1000 + timeStart.tv_usec/1000) ;
 	/* Print output */
-	//for (int i = 0 ; i<m*k;i++)
-	//	printf("dist: %lf \t index: %d  \n",res.ndist[i],res.nidx[i]);
+	for (int i = 0 ; i<m*k;i++)
+		printf("dist: %lf \t index: %d  \n",res.ndist[i],res.nidx[i]);
 
 	printf("Total time : %.4f ms\n",totaltime);
 	/*Ending Proccess deallocate memory  */
 	free(X);
 	free(Y);
+	free(res.ndist);
+	free(res.nidx);
 	fclose(fp);
 	exit(EXIT_SUCCESS);
 
@@ -159,17 +148,6 @@ kNN(double * X, double * Y, int n, int m, int d, int k){
 		for (int i=0;i<n*mBlock;i++){
 			D[i]=sqrt(X_part[i] - XY_part[i]  + Y_part[i]);
 		}
-		/* Prints D  */
-		/*
-		for (int i= 0 ; i<n; i++){
-			for (int j=0; j<mBlock ; j++){
-				printf("%lf ",D[mBlock*i+j]);
-			}
-			puts("");
-		}
-		puts("");
-		*/
-
 		/* Find the k nearest neighbours */
 		for (int j=0;j<n;j++){
 			for (int i=0;i<mBlock;i++){
@@ -199,11 +177,6 @@ kNN(double * X, double * Y, int n, int m, int d, int k){
 
 		//current_block++;
 	}
-	/* Prinf dist and idx  */
-	/*
-	for (int i = 0 ; i<m*k;i++)
-		printf("dist: %lf \t index: %d  \n",dist[i],idx[i]);
-	*/
 	/* Set up knnresult  */
 	knnresult result;
 	result.m = m;
