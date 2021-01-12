@@ -2,4 +2,7 @@ datasets/
 *.swp
 *core
 *main
-
+k100/
+k10/
+k50/
+hpcscripts/
