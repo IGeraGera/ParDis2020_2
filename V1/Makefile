@@ -9,7 +9,7 @@ main:
 	$(MPICC) $(CFLAGS) -o main main.c -lopenblas -lm
 
 test:
-	mpiexec -n 4 ./main ../Datasets/Container_Crane_Controller_Data_Set.csv
+	mpiexec -n 4 ./main ../Datasets/BreastCancerCoimbra.csv
 
 .PHONY: clean
 

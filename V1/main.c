@@ -1,3 +1,12 @@
+/*
+ * This program calculates all-to-all kNN of a set X that is given by a .csv as an argument.
+ * This version uses mpi to "split" the workload to processes that are connected in a ring topology.
+ * An assumption is made, for learning purposes, that the X input set cannot be read by every process.
+ * For this reason the X is split as corpus set to the number of processes and then it's passed accordingly to each process by the root process.
+ * Afterwards each process passes it's local corpus set to the next and the receiving proccess calculates the kNNs for the local set from the set that was received.
+ * At the end each procces has a copy of the knnresult struct that contains the all-to-all kNNs after a simple merginf is done.
+ */
+
 #include<stdio.h>
 #include<unistd.h>
 #include<stdlib.h>
@@ -53,20 +62,11 @@ main(int argc, char *argv[]){
 	int dataRows;
 	data=readCSV(fp,data,&dataRows);
 	int attributes = getAttributes(fp);
-	/* Print data */
-	/*
-	for(int i=0; i<dataRows;i++){
-		for(int j = 0 ; j<attributes ;j++){
-			printf("%lf ",data[i][j]);
-		}
-		printf("\n");
-	}
-	*/
 	/* kNN variables*/
 	int n = dataRows;
 	int m = dataRows;
 	int d = attributes;
-	int k = 3;
+	int k = 10;
 	double *X = (double *)malloc(n*d*sizeof(double));
 	/* Init X and Y */
 	for (int i= 0 ; i<n; i++){
@@ -75,16 +75,6 @@ main(int argc, char *argv[]){
 		}
 	}
 
-	/* Prints D  */
-	/*
-	for (int i= 0 ; i<n; i++){
-		for (int j=0; j<d ; j++){
-			printf("%lf ",X[d*i+j]);
-		}
-		puts("");
-	}
-	puts("");
-	*/
 	/* Free  data memory*/
 	while(dataRows) free(data[--dataRows]);
 	free(data);
@@ -193,17 +183,6 @@ distrAllkNN(double * X, int n, int d, int k){
 		m=nCorpus;
 		
 	}	
-
-	/* Prints Corpus  */
-	/*
-	for (int i= 0 ; i<nCorpus; i++){
-		for (int j=0; j<d ; j++){
-			printf("%lf ",Y[d*i+j]);
-		}
-		puts("");
-	}
-	puts("");
-	*/
 	/* Assign Destinations and Sources  */
 	next = rank + 1;
 	previous =rank - 1;
@@ -233,18 +212,6 @@ distrAllkNN(double * X, int n, int d, int k){
 			MPI_Irecv(Z,mIn*d,MPI_DOUBLE,previous,Tag,MPI_COMM_WORLD,&reqs[1]); 
 		}
 		
-		/*
-		if(rank==2 && iteration == 2){
-		puts("This is Y given to kNN");
-		for (int i= 0 ; i<m; i++){
-			for (int j=0; j<d ; j++){
-				printf("%lf ",Y[d*i+j]);
-			}
-			puts("");
-		}
-		puts("");
-		}
-		*/
 
 		/* Calculate kNNs for Y */
 		result = kNN(Y,Corpus,m,nCorpus,d,k,(Ycurrent == 0 )? 0 :displacements[Ycurrent]/k);
@@ -302,28 +269,6 @@ kNN(double * X, double * Y, int n, int m, int d, int k, int nIndex){
 		}
 	}
 
-	/*
-	int rank;
-	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	if(rank==2 && iter==3){
-		puts("X");
-		for (int i= 0 ; i<n; i++){
-			for (int j=0; j<d ; j++){
-				printf("%lf ",X[d*i+j]);
-			}
-			puts("");
-		}
-		puts("Y");
-		for (int i= 0 ; i<m; i++){
-			for (int j=0; j<d ; j++){
-				printf("%lf ",Y[d*i+j]);
-			}
-			puts("");
-		}
-		puts("");
-	}
-	*/
-
 	/* Variables that only allocate once */
 	double *X_HAD   = (double *)malloc(n*d*sizeof(double));
 	double *e_x_dt  = (double *)malloc(n*d*sizeof(double));
@@ -360,19 +305,6 @@ kNN(double * X, double * Y, int n, int m, int d, int k, int nIndex){
 			D[i]=sqrt(X_part[i] - XY_part[i]  + Y_part[i]);
 		}
 		
-		/* Prints D  */
-		/*
-		if (rank==2 && iter ==3){
-		puts("");
-		for (int i= 0 ; i<n; i++){
-			for (int j=0; j<mBlock ; j++){
-				printf("%lf ",D[mBlock*i+j]);
-			}
-			puts("");
-		}
-		puts("");
-		}
-		*/
 		/* Find the k nearest neighbours */
 		for (int j=0;j<n;j++){
 			for (int i=0;i<mBlock;i++){
