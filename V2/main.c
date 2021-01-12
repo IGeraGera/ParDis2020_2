@@ -66,20 +66,11 @@ main(int argc, char *argv[]){
 	int dataRows;
 	data=readCSV(fp,data,&dataRows);
 	int attributes = getAttributes(fp);
-	/* Print data */
-	/*
-	for(int i=0; i<dataRows;i++){
-		for(int j = 0 ; j<attributes ;j++){
-			printf("%lf ",data[i][j]);
-		}
-		printf("\n");
-	}
-	*/
 	/* kNN variables*/
 	int n = dataRows;
 	int m = dataRows;
 	int d = attributes;
-	int k = 3;
+	int k = 10;
 	double *X = (double *)malloc(n*d*sizeof(double));
 	/* Init X and Y */
 	for (int i= 0 ; i<n; i++){
@@ -188,16 +179,6 @@ distrAllkNN(double * X, int n, int d, int k){
 		m=nCorpus;
 		
 	}	
-	/* Prints Corpus  */
-	/*
-	for (int i= 0 ; i<nCorpus; i++){
-		for (int j=0; j<d ; j++){
-			printf("%lf ",Y[d*i+j]);
-		}
-		puts("");
-	}
-	puts("");
-	*/
 	/* Make the tree  */
 	/* Tree Indices  */
 	/* [ vpIdx left right | vpIdx left right .... | vpIdx left right ]*/
@@ -206,7 +187,7 @@ distrAllkNN(double * X, int n, int d, int k){
 	#define right 2
 	int *treeIdx = (int *)malloc(0* sizeof(int));
 	/* Num of elements in leaves B */
-	const int B = 2;
+	const int B = 600;
 	/* Data array */
 	int treeDataSize =1,currNode;
 	int *treeData = (int *)malloc(B*sizeof(int));
@@ -316,7 +297,7 @@ distrAllkNN(double * X, int n, int d, int k){
 			muArray=muArraybuf;
 			treeIdx=treeIdxbuf;
 			treeData=treeDatabuf;
-			nCorpus-nCorpusbuf;
+			nCorpus=nCorpusbuf;
 			nodes=nodesbuf;
 			treeDataSize=treeDataSizebuf;
 			currNode=currNodebuf;
@@ -363,10 +344,10 @@ distrAllkNN(double * X, int n, int d, int k){
 	finalres.m=n;
 	finalres.nidx=finalIdx;
 	finalres.ndist=finalDist;
-	if(rank==0){
-	for (int i = 0 ; i<m*k;i++)
-		printf("dist: %lf \t index: %d  \n",finalres.ndist[i],finalres.nidx[i]);
-	}
+	//if(rank==0){
+	//for (int i = 0 ; i<m*k;i++)
+	//	printf("dist: %lf \t index: %d  \n",finalres.ndist[i],finalres.nidx[i]);
+	//}
 	return finalres;
 
 }
@@ -503,7 +484,7 @@ makeTree(double *X,int n,int d, int *treeIdx,double *muArray, int *treeData , in
 	/* Add a new node */
 	(*nodes)++;
 	int currNode=*nodes;
-	printf("In Node %d avilable Indices %d\n",currNode,availableIndicesSize);
+	//printf("In Node %d avilable Indices %d\n",currNode,availableIndicesSize);
 	int treeEl=3*(currNode-1);
 	/* Please note the (nodes *3) */
 	treeIdx = (int *)realloc(treeIdx,currNode * 3*sizeof(int));
